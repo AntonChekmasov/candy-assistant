@@ -1,6 +1,7 @@
 // Работа с товарами в заказе
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class ProductItem {
   final String id;
@@ -71,7 +72,7 @@ class ProductsList with ChangeNotifier {
       );
     }
     if (isUpdate == true) {
-      notifyListeners(); //обновляем инфу у слушателей
+      notifyListeners();
     }
   }
 
