@@ -23,7 +23,21 @@ class ProductsScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const ProductsListWidget(),
+      body: FutureBuilder(
+        future: Provider.of<CatProducts>(context, listen: false)
+            .fetchAndSetProducts(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            if (snapshot.error != null) {
+              return const Center(child: Text('An error occurred!'));
+            } else {
+              return const ProductsListWidget();
+            }
+          }
+        },
+      ),
     );
   }
 }
@@ -33,6 +47,7 @@ class ProductsListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Получаем список продукции
     final productsList = Provider.of<CatProducts>(context).products.toList();
     return ListView.builder(
       itemCount: productsList.length,

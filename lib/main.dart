@@ -40,8 +40,15 @@ class MyApp extends StatelessWidget {
           create: (ctx) => Auth(),
         ),
         // Продукты
-        ChangeNotifierProvider(
-          create: (ctx) => CatProducts(),
+        // ChangeNotifierProvider(
+        //   create: (ctx) => CatProducts(),
+        // ),
+        ChangeNotifierProxyProvider<Auth, CatProducts>(
+          create: (_) => CatProducts('', '', []),
+          update: (ctx, auth, previousProducts) => CatProducts(
+              auth.token!,
+              auth.userId,
+              previousProducts == null ? [] : previousProducts.products),
         ),
         // Продукты
         ChangeNotifierProvider(

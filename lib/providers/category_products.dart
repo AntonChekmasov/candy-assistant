@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class ProductItem {
   final String id; // id продукта
@@ -19,29 +21,13 @@ class ProductItem {
 }
 
 class CatProducts with ChangeNotifier {
-  List<ProductItem> _products = [
-    ProductItem(
-      id: '1',
-      title: 'Торт Медовик',
-      isWeight: true,
-      price: 2000,
-      cost: 1200,
-    ),
-    ProductItem(
-      id: '2',
-      title: 'Торт Манго-личи',
-      isWeight: true,
-      price: 2200,
-      cost: 1300,
-    ),
-    ProductItem(
-      id: '3',
-      title: 'Капкейки Шоколад',
-      isWeight: false,
-      price: 200,
-      cost: 100,
-    ),
-  ];
+  List<ProductItem> _products = [];
+
+  // Токен авторизации и id пользователя
+  String authToken = '';
+  String userId = '';
+
+  CatProducts(this.authToken, this.userId, this._products);
 
   // Получение списка всех продуктов
   List<ProductItem> get products {
@@ -58,27 +44,91 @@ class CatProducts with ChangeNotifier {
     return _products.firstWhere((item) => item.id == id);
   }
 
+  // Загрузка списка продукции с сервера в переменную _products в памяти
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    final filterString =
+        filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : '';
+    Uri url = Uri.parse(
+        'https://puellaveris-70849-default-rtdb.firebaseio.com/production.json?auth=$authToken&$filterString');
+    try {
+      final response = await http.get(url);
+      if (response.body.length <= 4) {
+        return;
+      }
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final List<ProductItem> loadedClients = [];
+      extractedData.forEach((prodId, prodData) {
+        loadedClients.add(
+          ProductItem(
+            id: prodId,
+            title: prodData['title'],
+            price: prodData['price'],
+            cost: prodData['cost'],
+            isWeight: prodData['isWeight'],
+          ),
+        );
+      });
+      _products = loadedClients;
+      notifyListeners();
+    } catch (error) {
+      rethrow;
+    }
+  }
+
   // Добавление нового продукта
-  void addProductr(ProductItem product) {
-    final newProduct = ProductItem(
-      id: 'id',
-      title: product.title,
-      isWeight: product.isWeight,
-      price: product.price,
-      cost: product.cost,
-    );
-    _products.add(newProduct);
-    notifyListeners();
+  Future<void> addProductr(ProductItem product) async {
+    Uri url = Uri.parse(
+        'https://puellaveris-70849-default-rtdb.firebaseio.com/production.json?auth=$authToken');
+    try {
+      // Отправляем данные о новом продукте на сервер, получает id продукта в response.body ['name']
+      final response = await http.post(
+        url,
+        body: json.encode({
+          'title': product.title,
+          'price': product.price,
+          'cost': product.cost,
+          'isWeight': product.isWeight,
+        }),
+      );
+      final newProduct = ProductItem(
+        id: 'id',
+        title: product.title,
+        price: product.price,
+        cost: product.cost,
+        isWeight: product.isWeight,
+      );
+      _products.add(newProduct);
+      notifyListeners();
+    } catch (error) {
+      rethrow;
+    }
   }
 
   // Обновление продукта
-  void updateProduct(String id, ProductItem newProduct) {
+  Future<void> updateProduct(String id, ProductItem newProduct) async {
     // Ищем индекс обновляемого продукта
     final prodIndex = _products.indexWhere((prod) => prod.id == id);
-    if (prodIndex >= 0) {
-      // Обновляем продукт в списке продуктов
-      _products[prodIndex] = newProduct;
-      notifyListeners();
+    try {
+      if (prodIndex >= 0) {
+        Uri url = Uri.parse(
+            'https://puellaveris-70849-default-rtdb.firebaseio.com/production/$id.json?auth=$authToken');
+        await http.patch(
+          url,
+          body: json.encode(
+            {
+              'title': newProduct.title,
+              'price': newProduct.price,
+              'cost': newProduct.cost,
+              'isWeight': newProduct.isWeight,
+            },
+          ),
+        );
+        // Обновляем продукт в списке продуктов
+        _products[prodIndex] = newProduct;
+        notifyListeners();
+      }
+    } catch (error) {
+      rethrow;
     }
   }
 }
