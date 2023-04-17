@@ -4,7 +4,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import '../screens/add_position_screen.dart';
 import '../providers/clients.dart';
 import '../providers/products_list.dart';
-import '../providers/todo.dart';
+import '../providers/orders.dart';
 
 class AddOrderScreen extends StatefulWidget {
   static const routeName = '/todolist/add_order';
@@ -20,7 +20,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey();
 
   // Переменная для хранения редактируемого заказа
-  var _editedOrderItem = TodoItem(
+  var _editedOrderItem = OrderItem(
     id: '',
     products: [],
     adress: '',

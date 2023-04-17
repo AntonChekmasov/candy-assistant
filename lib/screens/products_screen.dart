@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_3/screens/add_product_screen.dart';
 import 'package:provider/provider.dart';
-
+import '../screens/add_product_screen.dart';
 import '../providers/category_products.dart';
+import '../widgets/app_drawer.dart';
 
 class ProductsScreen extends StatelessWidget {
   static const routeName = '/products';
@@ -23,6 +23,7 @@ class ProductsScreen extends StatelessWidget {
           ),
         ],
       ),
+      drawer: AppDrawer(),
       body: FutureBuilder(
         future: Provider.of<CatProducts>(context, listen: false)
             .fetchAndSetProducts(),
@@ -31,7 +32,7 @@ class ProductsScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           } else {
             if (snapshot.error != null) {
-              return const Center(child: Text('An error occurred!'));
+              return const Center(child: Text('Ошибка выполнения запроса'));
             } else {
               return const ProductsListWidget();
             }

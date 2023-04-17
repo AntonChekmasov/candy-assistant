@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../providers/clients.dart';
 import '../screens/add_clients_screen.dart';
+import '../widgets/app_drawer.dart';
 
 class ClientsScreen extends StatelessWidget {
   static const routeName = '/clients';
@@ -23,6 +23,7 @@ class ClientsScreen extends StatelessWidget {
           ),
         ],
       ),
+      drawer: AppDrawer(),
       body: FutureBuilder(
         future:
             Provider.of<Clients>(context, listen: false).fetchAndSetClients(),
