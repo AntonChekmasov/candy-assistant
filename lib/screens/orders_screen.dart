@@ -6,10 +6,10 @@ import '../providers/orders.dart';
 import '../screens/add_order_screen.dart';
 import '../widgets/app_drawer.dart';
 
-class Todolist extends StatelessWidget {
+class OrdersScreen extends StatelessWidget {
   static const routeName = '/orders';
 
-  const Todolist({super.key});
+  const OrdersScreen({super.key});
   // Верстка страницы
   @override
   Widget build(BuildContext context) {

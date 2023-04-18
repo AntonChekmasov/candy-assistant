@@ -111,7 +111,6 @@ class Auth with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     prefs.clear();
     notifyListeners();
-    print(_token);
   }
 
   void _autoLogout() {

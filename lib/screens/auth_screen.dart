@@ -11,64 +11,27 @@ enum AuthMode { Signup, Login }
 class AuthScreen extends StatelessWidget {
   static const routeName = '/auth';
 
+  const AuthScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
     return Scaffold(
       body: Stack(
-        children: <Widget>[
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color.fromRGBO(215, 117, 255, 1).withOpacity(0.5),
-                  Color.fromRGBO(255, 188, 117, 1).withOpacity(0.9),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                stops: [0, 1],
-              ),
-            ),
-          ),
+        children: [
+          _pageGradient(),
           SingleChildScrollView(
-            child: Container(
+            child: SizedBox(
               height: deviceSize.height,
               width: deviceSize.width,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  Flexible(
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 20.0),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 94.0),
-                      transform: Matrix4.rotationZ(-8 * pi / 180)
-                        ..translate(-10.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.deepOrange.shade900,
-                        boxShadow: const [
-                          BoxShadow(
-                            blurRadius: 8,
-                            color: Colors.black26,
-                            offset: Offset(0, 2),
-                          )
-                        ],
-                      ),
-                      child: const Text(
-                        'Cake Planner',
-                        style: TextStyle(
-                          fontSize: 50,
-                          fontFamily: 'Anton',
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    ),
-                  ),
+                  _logo(),
                   Flexible(
                     flex: deviceSize.width > 600 ? 2 : 1,
-                    child: AuthCard(),
+                    child: const AuthCard(),
                   ),
                 ],
               ),
@@ -78,8 +41,55 @@ class AuthScreen extends StatelessWidget {
       ),
     );
   }
+
+  // Фоновый градиент
+  _pageGradient() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color.fromRGBO(215, 117, 255, 1).withOpacity(0.5),
+            const Color.fromRGBO(255, 188, 117, 1).withOpacity(0.9),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          stops: const [0, 1],
+        ),
+      ),
+    );
+  }
+
+  // Лого
+  _logo() {
+    return Flexible(
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 20.0),
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 94.0),
+        transform: Matrix4.rotationZ(-8 * pi / 180)..translate(-10.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: const Color.fromARGB(255, 223, 129, 101),
+          boxShadow: const [
+            BoxShadow(
+              blurRadius: 8,
+              color: Colors.black26,
+              offset: Offset(0, 2),
+            )
+          ],
+        ),
+        child: const Text(
+          'Candy Assistant',
+          style: TextStyle(
+            fontSize: 40,
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
+// Форма авторизации
 class AuthCard extends StatefulWidget {
   const AuthCard({
     Key? key,
@@ -99,6 +109,120 @@ class _AuthCardState extends State<AuthCard> {
   var _isLoading = false;
   final _passwordController = TextEditingController();
 
+  @override
+  Widget build(BuildContext context) {
+    final deviceSize = MediaQuery.of(context).size;
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      elevation: 8.0,
+      child: Container(
+        height: _authMode == AuthMode.Signup ? 320 : 260,
+        constraints:
+            BoxConstraints(minHeight: _authMode == AuthMode.Signup ? 320 : 260),
+        width: deviceSize.width * 0.75,
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _emailInput(),
+                _passInput(),
+                _retryPassInput(),
+                const SizedBox(height: 20),
+                _buttonLogin(),
+                _buttonRegister(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Поле ввода e-mail
+  _emailInput() {
+    return TextFormField(
+      decoration: const InputDecoration(labelText: 'E-Mail'),
+      keyboardType: TextInputType.emailAddress,
+      validator: (value) {
+        if (value!.isEmpty || !value.contains('@')) {
+          return 'Неверный формат e-mail';
+        }
+        return null;
+      },
+      onSaved: (value) {
+        _authData['email'] = value!;
+      },
+    );
+  }
+
+  // Поле ввода пароля
+  _passInput() {
+    return TextFormField(
+      decoration: const InputDecoration(labelText: 'Пароль'),
+      obscureText: true,
+      controller: _passwordController,
+      validator: (value) {
+        if (value!.isEmpty || value.length < 5) {
+          return 'Пароль слишком короткий';
+        }
+      },
+      onSaved: (value) {
+        _authData['password'] = value!;
+      },
+    );
+  }
+
+  // Поле подтверждения пароля при регистрации
+  _retryPassInput() {
+    if (_authMode == AuthMode.Signup) {
+      return TextFormField(
+        enabled: _authMode == AuthMode.Signup,
+        decoration: const InputDecoration(labelText: 'Подтвердите пароль'),
+        obscureText: true,
+        validator: _authMode == AuthMode.Signup
+            ? (value) {
+                if (value != _passwordController.text) {
+                  return 'Пароли не совпадают';
+                }
+              }
+            : null,
+      );
+    } else {
+      return const SizedBox(height: 1);
+    }
+  }
+
+  // Кнопка Войти
+  _buttonLogin() {
+    if (_isLoading) {
+      return const CircularProgressIndicator();
+    } else {
+      return ElevatedButton(
+        onPressed: _submit,
+        style: ButtonStyle(
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          )),
+        ),
+        child: Text(_authMode == AuthMode.Login ? 'Войти' : 'Регистрация'),
+      );
+    }
+  }
+
+  // Кнопка Регистрация
+  _buttonRegister() {
+    return TextButton(
+      onPressed: _switchAuthMode,
+      child: Text('${_authMode == AuthMode.Login ? 'Регистрация' : 'Войти'}'),
+    );
+  }
+
+  // Диалог ошибки
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -117,6 +241,7 @@ class _AuthCardState extends State<AuthCard> {
     );
   }
 
+  // Вход в систему / регистрация
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) {
       // Invalid!
@@ -153,12 +278,12 @@ class _AuthCardState extends State<AuthCard> {
           'Не удалось проверить подлинность. Повторите попытку позже';
       _showErrorDialog(errorMessage);
     }
-
     setState(() {
       _isLoading = false;
     });
   }
 
+  // Переключение метода авторизации
   void _switchAuthMode() {
     if (_authMode == AuthMode.Login) {
       setState(() {
@@ -169,94 +294,5 @@ class _AuthCardState extends State<AuthCard> {
         _authMode = AuthMode.Login;
       });
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final deviceSize = MediaQuery.of(context).size;
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      elevation: 8.0,
-      child: Container(
-        height: _authMode == AuthMode.Signup ? 320 : 260,
-        constraints:
-            BoxConstraints(minHeight: _authMode == AuthMode.Signup ? 320 : 260),
-        width: deviceSize.width * 0.75,
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'E-Mail'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value!.isEmpty || !value.contains('@')) {
-                      return 'Неверный формат e-mail';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _authData['email'] = value!;
-                  },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Пароль'),
-                  obscureText: true,
-                  controller: _passwordController,
-                  validator: (value) {
-                    if (value!.isEmpty || value.length < 5) {
-                      return 'Пароль слишком короткий';
-                    }
-                  },
-                  onSaved: (value) {
-                    _authData['password'] = value!;
-                  },
-                ),
-                if (_authMode == AuthMode.Signup)
-                  TextFormField(
-                    enabled: _authMode == AuthMode.Signup,
-                    decoration:
-                        const InputDecoration(labelText: 'Подтвердите пароль'),
-                    obscureText: true,
-                    validator: _authMode == AuthMode.Signup
-                        ? (value) {
-                            if (value != _passwordController.text) {
-                              return 'Пароли не совпадают';
-                            }
-                          }
-                        : null,
-                  ),
-                const SizedBox(
-                  height: 20,
-                ),
-                if (_isLoading)
-                  const CircularProgressIndicator()
-                else
-                  ElevatedButton(
-                    onPressed: _submit,
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      )),
-                    ),
-                    child:
-                        Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
-                  ),
-                TextButton(
-                  onPressed: _switchAuthMode,
-                  child: Text(
-                      '${_authMode == AuthMode.Login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

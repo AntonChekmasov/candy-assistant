@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import './providers/auth.dart';
-import './providers/clients.dart';
+import '../providers/auth.dart';
+import '../providers/clients.dart';
 import '../providers/orders.dart';
-import 'providers/products.dart';
+import '../providers/products.dart';
 import '../providers/products_list.dart';
 import '../screens/add_clients_screen.dart';
 import '../screens/add_order_screen.dart';
@@ -16,7 +16,7 @@ import '../screens/auth_screen.dart';
 import '../screens/splash-screen.dart';
 import '../screens/products_screen.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -62,33 +62,34 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'MyShop',
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSwatch().copyWith(
-              primary: const Color.fromRGBO(191, 129, 128, 1),
-              secondary: const Color.fromRGBO(15, 109, 107, 1),
-            ),
-            accentColor: Colors.red,
             fontFamily: 'Lato',
+            colorScheme: ColorScheme.fromSwatch()
+                .copyWith(
+                  primary: const Color.fromRGBO(191, 129, 128, 1),
+                  secondary: const Color.fromRGBO(15, 109, 107, 1),
+                )
+                .copyWith(secondary: Colors.red),
           ),
           // Выбор домашнего экрана в зависимости от аутенификации пользователя
           home: auth.isAuth
-              ? Todolist()
+              ? const OrdersScreen()
               : FutureBuilder(
                   future: auth.tryAutoLogin(),
                   builder: (context, snapshot) =>
                       snapshot.connectionState == ConnectionState.waiting
                           ? const SplashScreen()
-                          : AuthScreen(),
+                          : const AuthScreen(),
                 ),
           // Все маршруты приложения
           routes: {
-            Todolist.routeName: (ctx) => Todolist(),
-            AddOrderScreen.routeName: (ctx) => AddOrderScreen(),
-            ProductsScreen.routeName: (ctx) => ProductsScreen(),
-            AuthScreen.routeName: (ctx) => AuthScreen(),
-            ClientsScreen.routeName: (ctx) => ClientsScreen(),
-            AddClientScreen.routeName: (ctx) => AddClientScreen(),
-            AddProductScreen.routeName: (ctx) => AddProductScreen(),
-            AddPositionScreen.routeName: (ctx) => AddPositionScreen(),
+            OrdersScreen.routeName: (ctx) => const OrdersScreen(),
+            AddOrderScreen.routeName: (ctx) => const AddOrderScreen(),
+            ProductsScreen.routeName: (ctx) => const ProductsScreen(),
+            AuthScreen.routeName: (ctx) => const AuthScreen(),
+            ClientsScreen.routeName: (ctx) => const ClientsScreen(),
+            AddClientScreen.routeName: (ctx) => const AddClientScreen(),
+            AddProductScreen.routeName: (ctx) => const AddProductScreen(),
+            AddPositionScreen.routeName: (ctx) => const AddPositionScreen(),
           },
         ),
       ),

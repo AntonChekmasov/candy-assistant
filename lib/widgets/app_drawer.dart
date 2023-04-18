@@ -14,14 +14,14 @@ class AppDrawer extends StatelessWidget {
       child: Column(
         children: <Widget>[
           AppBar(
-            title: const Text('PuellaVeris Cake'),
+            title: const Text('Candy Assistant'),
             automaticallyImplyLeading: false,
           ),
           ListTile(
-            leading: const Icon(Icons.money_off_csred_rounded),
-            title: const Text('Выдача заказов'),
+            leading: const Icon(Icons.shop_2_outlined),
+            title: const Text('Заказы'),
             onTap: () {
-              Navigator.of(context).pushNamed(Todolist.routeName);
+              Navigator.of(context).pushNamed(OrdersScreen.routeName);
             },
           ),
           // Магазин
@@ -32,7 +32,6 @@ class AppDrawer extends StatelessWidget {
               Navigator.of(context).pushNamed(ClientsScreen.routeName);
             },
           ),
-          const Divider(),
           ListTile(
             leading: const Icon(Icons.store),
             title: const Text('Товары'),
@@ -40,15 +39,6 @@ class AppDrawer extends StatelessWidget {
               Navigator.of(context).pushNamed(ProductsScreen.routeName);
             },
           ),
-          // const Divider(),
-          // ListTile(
-          //   leading: const Icon(Icons.shop),
-          //   title: const Text('Продукция'),
-          //   onTap: () {
-          //     Navigator.of(context).pushReplacementNamed('/');
-          //   },
-          // ),
-          // Выход из системы
           const Divider(),
           ListTile(
             leading: const Icon(Icons.exit_to_app),
