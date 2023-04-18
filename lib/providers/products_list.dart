@@ -55,7 +55,7 @@ class ProductsList with ChangeNotifier {
         (existingCartItem) => ProductItem(
           id: existingCartItem.id,
           title: existingCartItem.title,
-          quantity: existingCartItem.quantity,
+          quantity: quantity,
           price: existingCartItem.price,
         ),
       );

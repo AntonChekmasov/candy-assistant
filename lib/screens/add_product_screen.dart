@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/category_products.dart';
+import '../providers/products.dart';
 
 class AddProductScreen extends StatefulWidget {
   static const routeName = '/products/add';
@@ -47,8 +47,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
       // Если есть id продукта
       if (productId != null) {
         // Ищем продукт по id
-        _editedProduct = Provider.of<CatProducts>(context, listen: false)
-            .findById(productId);
+        _editedProduct =
+            Provider.of<Products>(context, listen: false).findById(productId);
         // Заполняем поля формы если редактируем клиента
         _initValues = {
           'title': _editedProduct.title,
@@ -71,12 +71,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _form.currentState?.save();
     // Если у клиента есть id - мы в режиме редактирования - обновляем продукт
     if (_editedProduct.id != '') {
-      Provider.of<CatProducts>(context, listen: false)
+      Provider.of<Products>(context, listen: false)
           .updateProduct(_editedProduct.id, _editedProduct);
     } else {
       // Иначе - добавляем новый продукт
-      Provider.of<CatProducts>(context, listen: false)
-          .addProductr(_editedProduct);
+      Provider.of<Products>(context, listen: false).addProductr(_editedProduct);
     }
     Navigator.of(context).pop();
   }

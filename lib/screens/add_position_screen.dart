@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/category_products.dart';
+import '../providers/products.dart';
 import '../providers/products_list.dart';
 
 class AddPositionScreen extends StatefulWidget {
@@ -23,7 +23,7 @@ class _AddPositionScreenState extends State<AddPositionScreen> {
   Widget build(BuildContext context) {
     final cart = Provider.of<ProductsList>(context);
 
-    final _products = Provider.of<CatProducts>(context).products;
+    final _products = Provider.of<Products>(context).products;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Выбирите позицию'),
@@ -67,7 +67,7 @@ class _AddPositionScreenState extends State<AddPositionScreen> {
   }
 
   Widget _createListView(BuildContext context, int index) {
-    final _products = Provider.of<CatProducts>(context);
+    final _products = Provider.of<Products>(context);
 
     return GestureDetector(
       onTap: () {

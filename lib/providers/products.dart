@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -20,26 +21,27 @@ class ProductItem {
   });
 }
 
-class CatProducts with ChangeNotifier {
+class Products with ChangeNotifier {
+  // Список продукции
   List<ProductItem> _products = [];
 
   // Токен авторизации и id пользователя
   String authToken = '';
   String userId = '';
 
-  CatProducts(this.authToken, this.userId, this._products);
+  Products(this.authToken, this.userId, this._products);
 
-  // Получение списка всех продуктов
+  // Получение списка всей продуктции
   List<ProductItem> get products {
     return [..._products];
   }
 
-  // Получение количества клиентов
+  // Получение количества продукции
   int get productsCount {
     return _products.length;
   }
 
-  // Поиск клиента по id
+  // Поиск продукции по id
   ProductItem findById(String id) {
     return _products.firstWhere((item) => item.id == id);
   }
@@ -90,8 +92,9 @@ class CatProducts with ChangeNotifier {
           'isWeight': product.isWeight,
         }),
       );
+      // Создаем локально новый продукт и добавляем в список продуктов _items в памяти
       final newProduct = ProductItem(
-        id: 'id',
+        id: json.decode(response.body)['name'],
         title: product.title,
         price: product.price,
         cost: product.cost,
@@ -130,5 +133,26 @@ class CatProducts with ChangeNotifier {
     } catch (error) {
       rethrow;
     }
+  }
+
+  // Удаление продукта по id
+  Future<void> deleteProduct(String id) async {
+    Uri url = Uri.parse(
+        'https://puellaveris-70849-default-rtdb.firebaseio.com/production/$id.json?auth=$authToken');
+    // Сохраняем удаляемый продукт в existingProduct
+    final existingProductIndex = _products.indexWhere((prod) => prod.id == id);
+    ProductItem? existingProduct = _products[existingProductIndex];
+    // Удаляем продукт из списка продуктов _products в памяти
+    _products.removeAt(existingProductIndex);
+    notifyListeners();
+    // Удаляем продукт из списка продуктов на сервере и сохраняем ответ с сервера
+    final response = await http.delete(url);
+    // Если получаем ошибку с сервера - добавляем обратно наш "удаляемый" продукт на его место
+    if (response.statusCode >= 400) {
+      _products.insert(existingProductIndex, existingProduct);
+      notifyListeners();
+      throw const HttpException('Could not delete product.');
+    }
+    existingProduct = null;
   }
 }

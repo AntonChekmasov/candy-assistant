@@ -7,7 +7,7 @@ import '../screens/add_order_screen.dart';
 import '../widgets/app_drawer.dart';
 
 class Todolist extends StatelessWidget {
-  static const routeName = '/todolist';
+  static const routeName = '/orders';
 
   const Todolist({super.key});
   // Верстка страницы
@@ -18,16 +18,30 @@ class Todolist extends StatelessWidget {
         title: const Text('Список заказов'),
       ),
       drawer: AppDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _TopInfoWidget(),
-            const SizedBox(height: 20),
-            _OrdersListWidget()
-          ],
-        ),
+      body: FutureBuilder(
+        future: Provider.of<Orders>(context, listen: false).fetchAndSetOrders(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            if (snapshot.error != null) {
+              return const Center(
+                  child: Text('Ошибка получения списка заказов'));
+            } else {
+              return Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _TopInfoWidget(),
+                    const SizedBox(height: 20),
+                    _OrdersListWidget()
+                  ],
+                ),
+              );
+            }
+          }
+        },
       ),
     );
   }
@@ -81,7 +95,7 @@ class _TopInfoWidget extends StatelessWidget {
 class _OrdersListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final _ordersList = Provider.of<OrderTodo>(context);
+    final _ordersList = Provider.of<Orders>(context);
     return Container(
       child: (_ordersList.orders.isEmpty)
           ? const Text('Нет заказов')
@@ -221,17 +235,21 @@ class OrderItemWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                const Text('Действия'),
+                const Text('Действия:'),
                 ElevatedButton(
                   child: const Text('Редактировать'),
                   onPressed: () => Navigator.of(context)
                       .pushNamed(AddOrderScreen.routeName, arguments: order.id),
                 ),
                 ElevatedButton(
-                    child: const Text('В Архив'),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    }),
+                  child: const Text('Удалить'),
+                  onPressed: () {
+                    // Удаление заказа
+                    Provider.of<Orders>(context, listen: false)
+                        .deleteOrder(order.id);
+                    Navigator.pop(context);
+                  },
+                ),
               ],
             ),
           ),

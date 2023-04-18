@@ -14,10 +14,7 @@ class AuthScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
-    // final transformConfig = Matrix4.rotationZ(-8 * pi / 180);
-    // transformConfig.translate(-10.0);
     return Scaffold(
-      // resizeToAvoidBottomInset: false,
       body: Stack(
         children: <Widget>[
           Container(
@@ -48,7 +45,6 @@ class AuthScreen extends StatelessWidget {
                           vertical: 8.0, horizontal: 94.0),
                       transform: Matrix4.rotationZ(-8 * pi / 180)
                         ..translate(-10.0),
-                      // ..translate(-10.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         color: Colors.deepOrange.shade900,
@@ -61,9 +57,8 @@ class AuthScreen extends StatelessWidget {
                         ],
                       ),
                       child: const Text(
-                        'MyShop',
+                        'Cake Planner',
                         style: TextStyle(
-                          //                      color: Theme.of(context).accentTextTheme.title.color,
                           fontSize: 50,
                           fontFamily: 'Anton',
                           fontWeight: FontWeight.normal,
@@ -108,7 +103,7 @@ class _AuthCardState extends State<AuthCard> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('An Error Occurred!'),
+        title: const Text('Ошибка'),
         content: Text(message),
         actions: [
           TextButton(
@@ -141,7 +136,6 @@ class _AuthCardState extends State<AuthCard> {
         await Provider.of<Auth>(context, listen: false)
             .signup(_authData['email']!, _authData['password']!);
       }
-      //   Navigator.of(context).pushReplacementNamed('/products-overview');
     } on HttpException catch (error) {
       var errorMessage = 'Аутенификация не удалась';
       if (error.toString().contains('EMAIL_EXISTS')) {
@@ -201,7 +195,7 @@ class _AuthCardState extends State<AuthCard> {
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value!.isEmpty || !value.contains('@')) {
-                      return 'Invalid email!';
+                      return 'Неверный формат e-mail';
                     }
                     return null;
                   },
@@ -210,12 +204,12 @@ class _AuthCardState extends State<AuthCard> {
                   },
                 ),
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'Password'),
+                  decoration: const InputDecoration(labelText: 'Пароль'),
                   obscureText: true,
                   controller: _passwordController,
                   validator: (value) {
                     if (value!.isEmpty || value.length < 5) {
-                      return 'Password is too short!';
+                      return 'Пароль слишком короткий';
                     }
                   },
                   onSaved: (value) {
@@ -226,12 +220,12 @@ class _AuthCardState extends State<AuthCard> {
                   TextFormField(
                     enabled: _authMode == AuthMode.Signup,
                     decoration:
-                        const InputDecoration(labelText: 'Confirm Password'),
+                        const InputDecoration(labelText: 'Подтвердите пароль'),
                     obscureText: true,
                     validator: _authMode == AuthMode.Signup
                         ? (value) {
                             if (value != _passwordController.text) {
-                              return 'Passwords do not match!';
+                              return 'Пароли не совпадают';
                             }
                           }
                         : null,
@@ -240,11 +234,9 @@ class _AuthCardState extends State<AuthCard> {
                   height: 20,
                 ),
                 if (_isLoading)
-                  CircularProgressIndicator()
+                  const CircularProgressIndicator()
                 else
                   ElevatedButton(
-                    child:
-                        Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
                     onPressed: _submit,
                     style: ButtonStyle(
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -252,17 +244,13 @@ class _AuthCardState extends State<AuthCard> {
                         borderRadius: BorderRadius.circular(30),
                       )),
                     ),
-                    //                padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
-                    //                  color: Theme.of(context).primaryColor,
-                    //                   textColor: Theme.of(context).primaryTextTheme.button.color,
+                    child:
+                        Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
                   ),
                 TextButton(
+                  onPressed: _switchAuthMode,
                   child: Text(
                       '${_authMode == AuthMode.Login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
-                  onPressed: _switchAuthMode,
-                  //                padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
-                  //                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  //                 textColor: Theme.of(context).primaryColor,
                 ),
               ],
             ),

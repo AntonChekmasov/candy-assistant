@@ -32,7 +32,8 @@ class ClientsScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           } else {
             if (snapshot.error != null) {
-              return const Center(child: Text('An error occurred!'));
+              return const Center(
+                  child: Text('Ошибка получения списка клиентов'));
             } else {
               return const ClientsListWidget();
             }

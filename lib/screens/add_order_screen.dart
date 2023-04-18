@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import '../providers/products.dart';
 import '../screens/add_position_screen.dart';
 import '../providers/clients.dart';
 import '../providers/products_list.dart';
@@ -48,20 +49,21 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
 
   // Переменная для проверки инициализации виджета
   var _isInit = true;
-
+  var orderId = '';
   @override
   void didChangeDependencies() {
     if (_isInit) {
-      // Загружаем список клиентов
+      // Загружаем список клиентов и список продукции
       Provider.of<Clients>(context).fetchAndSetClients();
+      Provider.of<Products>(context).fetchAndSetProducts();
       _cart = Provider.of<ProductsList>(context);
       // Получаем id заказа из аргументов
-      final orderId = ModalRoute.of(context)?.settings.arguments as String?;
+      orderId = ModalRoute.of(context)?.settings.arguments as String? ?? '';
       // Если есть id заказа
-      if (orderId != null) {
+      if (orderId != '') {
         // Ищем заказ по id
         _editedOrderItem =
-            Provider.of<OrderTodo>(context, listen: false).findById(orderId);
+            Provider.of<Orders>(context, listen: false).findById(orderId);
         // Заполняем поля если редактируем заказ
         _isDelivery = _editedOrderItem.isDelivery;
         _date = _editedOrderItem.dateTime;
@@ -309,25 +311,48 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   // Кнопка 'Создать заказ'
   _addConfirmButton() {
     // Список заказов
-    final ordersList = Provider.of<OrderTodo>(context);
+    final ordersList = Provider.of<Orders>(context);
     return ElevatedButton(
       onPressed: () {
         if (!_formKey.currentState!.validate()) {
           // Invalid!
           return;
         }
-        ordersList.addOrder(
-          _selectedClient ?? 'AAA',
-          _cart.items.values.toList(),
-          _cart.totalAmount,
-          _prepay,
-          _isDelivery,
-          'adress',
-          _date,
-        );
+        // Если есть id заказа
+        if (_editedOrderItem.id != '') {
+          // Обновляем заказ
+          ordersList.updateOrder(
+            _editedOrderItem.id,
+            OrderItem(
+              id: _editedOrderItem.id,
+              clientName: _selectedClient ?? 'AAA',
+              products: _cart.items.values.toList(),
+              summ: _cart.totalAmount,
+              payed: _prepay,
+              isDelivery: _isDelivery,
+              adress: 'adress',
+              dateTime: _date,
+            ),
+          );
+        } else {
+          // Создаем новый заказ
+          ordersList.addOrder(
+            OrderItem(
+              id: '',
+              clientName: _selectedClient ?? 'AAA',
+              products: _cart.items.values.toList(),
+              summ: _cart.totalAmount,
+              payed: _prepay,
+              isDelivery: _isDelivery,
+              adress: 'adress',
+              dateTime: _date,
+            ),
+          );
+        }
         _cart.clear();
         setState(() {});
-        Navigator.pop(context);
+        Navigator.of(context).pushReplacementNamed('/');
+        //    Navigator.pop(context);
       },
       child: const Text('Создать заказ'),
     );

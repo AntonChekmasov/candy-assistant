@@ -3,18 +3,18 @@ import 'package:provider/provider.dart';
 
 import './providers/auth.dart';
 import './providers/clients.dart';
-import './providers/todo.dart';
-import './providers/category_products.dart';
-import './providers/products_list.dart';
-import './screens/add_clients_screen.dart';
-import './screens/add_order_screen.dart';
-import './screens/add_position_screen.dart';
-import './screens/add_product_screen.dart';
-import './screens/clients_screen.dart';
-import './screens/todolist_screen.dart';
-import './screens/auth_screen.dart';
-import './screens/splash-screen.dart';
-import './screens/products_screen.dart';
+import '../providers/orders.dart';
+import 'providers/products.dart';
+import '../providers/products_list.dart';
+import '../screens/add_clients_screen.dart';
+import '../screens/add_order_screen.dart';
+import '../screens/add_position_screen.dart';
+import '../screens/add_product_screen.dart';
+import '../screens/clients_screen.dart';
+import '../screens/orders_screen.dart';
+import '../screens/auth_screen.dart';
+import '../screens/splash-screen.dart';
+import '../screens/products_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -30,9 +30,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (ctx) => Auth(),
         ),
-        ChangeNotifierProxyProvider<Auth, CatProducts>(
-          create: (_) => CatProducts('', '', []),
-          update: (ctx, auth, previousProducts) => CatProducts(
+        ChangeNotifierProxyProvider<Auth, Products>(
+          create: (_) => Products('', '', []),
+          update: (ctx, auth, previousProducts) => Products(
               auth.token!,
               auth.userId,
               previousProducts == null ? [] : previousProducts.products),
@@ -42,8 +42,10 @@ class MyApp extends StatelessWidget {
           create: (ctx) => ProductsList(),
         ),
         // Список заказов
-        ChangeNotifierProvider(
-          create: (ctx) => OrderTodo(),
+        ChangeNotifierProxyProvider<Auth, Orders>(
+          create: (_) => Orders('', '', []),
+          update: (ctx, auth, previousOrder) => Orders(auth.token!, auth.userId,
+              previousOrder == null ? [] : previousOrder.orders),
         ),
         // Клиенты
         ChangeNotifierProxyProvider<Auth, Clients>(
@@ -61,8 +63,8 @@ class MyApp extends StatelessWidget {
           title: 'MyShop',
           theme: ThemeData(
             colorScheme: ColorScheme.fromSwatch().copyWith(
-              primary: Color.fromRGBO(191, 129, 128, 1),
-              secondary: Color.fromRGBO(15, 109, 107, 1),
+              primary: const Color.fromRGBO(191, 129, 128, 1),
+              secondary: const Color.fromRGBO(15, 109, 107, 1),
             ),
             accentColor: Colors.red,
             fontFamily: 'Lato',
@@ -74,7 +76,7 @@ class MyApp extends StatelessWidget {
                   future: auth.tryAutoLogin(),
                   builder: (context, snapshot) =>
                       snapshot.connectionState == ConnectionState.waiting
-                          ? SplashScreen()
+                          ? const SplashScreen()
                           : AuthScreen(),
                 ),
           // Все маршруты приложения

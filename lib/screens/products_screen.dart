@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../screens/add_product_screen.dart';
-import '../providers/category_products.dart';
+import '../providers/products.dart';
 import '../widgets/app_drawer.dart';
 
 class ProductsScreen extends StatelessWidget {
@@ -25,8 +25,8 @@ class ProductsScreen extends StatelessWidget {
       ),
       drawer: AppDrawer(),
       body: FutureBuilder(
-        future: Provider.of<CatProducts>(context, listen: false)
-            .fetchAndSetProducts(),
+        future:
+            Provider.of<Products>(context, listen: false).fetchAndSetProducts(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -49,7 +49,7 @@ class ProductsListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Получаем список продукции
-    final productsList = Provider.of<CatProducts>(context).products.toList();
+    final productsList = Provider.of<Products>(context).products.toList();
     return ListView.builder(
       itemCount: productsList.length,
       itemBuilder: (ctx, i) => Card(
