@@ -7,7 +7,7 @@ import '../providers/products_list.dart';
 class OrderItem {
   final String id;
   final String clientName;
-  final List<ProductItem> products;
+  final List<ProductListItem> products;
   final double summ;
   final double payed;
   final bool isDelivery;
@@ -60,7 +60,7 @@ class Orders with ChangeNotifier {
             clientName: ordData['clientName'],
             products: (ordData['products'] as List<dynamic>)
                 .map(
-                  (item) => ProductItem(
+                  (item) => ProductListItem(
                     id: item['id'],
                     title: item['title'],
                     quantity: item['quantity'],

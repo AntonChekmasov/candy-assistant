@@ -42,7 +42,7 @@ class AppDrawer extends StatelessWidget {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.exit_to_app),
-            title: const Text('Logout'),
+            title: const Text('Выход из системы'),
             onTap: () {
               // Возврат на домашний экран
               Navigator.of(context).pop();

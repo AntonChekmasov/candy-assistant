@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../providers/auth.dart';
 import '../providers/clients.dart';
 import '../providers/orders.dart';
@@ -60,7 +59,7 @@ class MyApp extends StatelessWidget {
         // Перестройка приложения когда меняется Auth
         builder: (ctx, auth, _) => MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'MyShop',
+          title: 'Candy Assistant',
           theme: ThemeData(
             fontFamily: 'Lato',
             colorScheme: ColorScheme.fromSwatch()

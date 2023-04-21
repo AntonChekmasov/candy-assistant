@@ -1,15 +1,14 @@
 // Работа с товарами в заказе
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
-class ProductItem {
+class ProductListItem {
   final String id;
   final String title;
   final int quantity;
   final double price;
 
-  ProductItem({
+  ProductListItem({
     required this.id,
     required this.title,
     required this.quantity,
@@ -19,10 +18,10 @@ class ProductItem {
 
 class ProductsList with ChangeNotifier {
   // Список товаров в заказе
-  Map<String, ProductItem> _items = {};
+  Map<String, ProductListItem> _items = {};
 
   // Получение всех позиций корзины
-  Map<String, ProductItem> get items {
+  Map<String, ProductListItem> get items {
     return {..._items};
   }
 
@@ -52,7 +51,7 @@ class ProductsList with ChangeNotifier {
     if (_items.containsKey(productId)) {
       _items.update(
         productId,
-        (existingCartItem) => ProductItem(
+        (existingCartItem) => ProductListItem(
           id: existingCartItem.id,
           title: existingCartItem.title,
           quantity: quantity,
@@ -63,7 +62,7 @@ class ProductsList with ChangeNotifier {
     } else {
       _items.putIfAbsent(
         productId,
-        () => ProductItem(
+        () => ProductListItem(
           id: DateTime.now().toString(),
           title: title,
           price: price,
@@ -78,7 +77,15 @@ class ProductsList with ChangeNotifier {
 
   // Удаляем позицию из заказа
   void removeItem(String productId) {
-    _items.remove(productId);
+    String _ids = '';
+    _items.forEach(
+      (key, value) {
+        if (value.id == productId) {
+          _ids = key;
+        }
+      },
+    );
+    _items.remove(_ids);
     notifyListeners();
   }
 

@@ -41,6 +41,9 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   // Переменная для хранения способа доставки
   bool _isDelivery = false;
 
+  // Переменная для хранения адреса доставки
+  var _adressController = TextEditingController(text: '');
+
   //Переменная для хранения даты и времени заказа
   DateTime _date = DateTime.now();
 
@@ -69,6 +72,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         _date = _editedOrderItem.dateTime;
         _selectedClient = _editedOrderItem.clientName;
         _prepay = _editedOrderItem.payed;
+        _adressController.text = _editedOrderItem.adress;
         for (var prod in _editedOrderItem.products) {
           _cart.addItem(prod.id, prod.price, prod.title, prod.quantity, false);
         }
@@ -88,27 +92,39 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   // Верстка страницы
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Новый заказ')),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _addSelectClient(),
-                const SizedBox(height: 10),
-                _addProductsList(),
-                const SizedBox(height: 10),
-                _addPaymentInfo(),
-                const SizedBox(height: 10),
-                _addDeliveryInfo(),
-                _addDateInfo(),
-                const SizedBox(height: 10),
-                _addConfirmButton(),
-              ],
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.of(context).pushReplacementNamed('/');
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: orderId == ''
+              ? const Text('Новый заказ')
+              : const Text('Редактировать заказ'),
+        ),
+        //   bottomSheet: ,
+
+        body: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _addSelectClient(),
+                  const SizedBox(height: 10),
+                  _addProductsList(),
+                  const SizedBox(height: 10),
+                  _addPaymentInfo(),
+                  const SizedBox(height: 10),
+                  _addDeliveryInfo(),
+                  _addDateInfo(),
+                  const SizedBox(height: 10),
+                  _addConfirmButton(),
+                ],
+              ),
             ),
           ),
         ),
@@ -122,6 +138,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
     final clients = Provider.of<Clients>(context);
     return DropdownButtonFormField2(
       hint: const Text('Выберите клиента'),
+      decoration: const InputDecoration(
+        contentPadding: EdgeInsets.all(11),
+        border: OutlineInputBorder(),
+      ),
       items: clients.clients
           .map((item) => DropdownMenuItem<String>(
                 value: item.name,
@@ -155,20 +175,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _cart.items.length,
-                itemBuilder: (context, i) => Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(_cart.items.values.toList()[i].title),
-                        Text(_cart.items.values.toList()[i].price.toString()),
-                        Text(
-                            _cart.items.values.toList()[i].quantity.toString()),
-                      ],
-                    ),
-                  ),
-                ),
+                itemBuilder: (context, i) =>
+                    _productCard(_cart.items.values.toList()[i]),
               )
             : const Text('Нет товаров'),
         const SizedBox(height: 10),
@@ -180,6 +188,24 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
           label: const Text(''),
         ),
       ],
+    );
+  }
+
+  _productCard(ProductListItem prod) {
+    return Card(
+      margin: const EdgeInsets.all(1),
+      child: ListTile(
+        title: Text(prod.title),
+        subtitle:
+            Text('${prod.quantity.toString()} x  ${prod.price.toString()}'),
+        trailing: IconButton(
+            onPressed: () {
+              Provider.of<ProductsList>(context, listen: false)
+                  .removeItem(prod.id);
+              setState(() {});
+            },
+            icon: const Icon(Icons.delete)),
+      ),
     );
   }
 
@@ -254,6 +280,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         const SizedBox(height: 10),
         if (_isDelivery)
           TextFormField(
+            controller: _adressController,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.all(10),
               border: OutlineInputBorder(),
@@ -330,7 +357,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
               summ: _cart.totalAmount,
               payed: _prepay,
               isDelivery: _isDelivery,
-              adress: 'adress',
+              adress: _adressController.text,
               dateTime: _date,
             ),
           );
@@ -344,7 +371,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
               summ: _cart.totalAmount,
               payed: _prepay,
               isDelivery: _isDelivery,
-              adress: 'adress',
+              adress: _adressController.text,
               dateTime: _date,
             ),
           );
@@ -352,9 +379,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         _cart.clear();
         setState(() {});
         Navigator.of(context).pushReplacementNamed('/');
-        //    Navigator.pop(context);
       },
-      child: const Text('Создать заказ'),
+      child: orderId == ''
+          ? const Text('Создать заказ')
+          : const Text('Сохранить изменения'),
     );
   }
 

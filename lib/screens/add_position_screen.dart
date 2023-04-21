@@ -14,10 +14,8 @@ class AddPositionScreen extends StatefulWidget {
 }
 
 class _AddPositionScreenState extends State<AddPositionScreen> {
-  //ProductItem _addedProducts = {};
   var selectedIndex = -1;
-  var selectrdProduct;
-  final myController = TextEditingController();
+  final myController = TextEditingController(text: '1');
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +54,6 @@ class _AddPositionScreenState extends State<AddPositionScreen> {
                         _products[selectedIndex].title,
                         int.parse(myController.text),
                         true);
-
                     setState(() {});
                     Navigator.pop(context);
                   },

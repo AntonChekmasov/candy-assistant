@@ -83,7 +83,7 @@ class _TopInfoWidget extends StatelessWidget {
           height: 100,
           width: 60,
           locale: 'ru',
-          activeDates: [DateTime(2023, 4, 15), DateTime(2023, 4, 13)],
+          //     activeDates: [DateTime(2023, 4, 21), DateTime(2023, 4, 13)],
           onDateChange: (selectedDate) {},
         ),
       ],
@@ -124,13 +124,30 @@ class OrderItemWidget extends StatelessWidget {
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              _userInfo(context),
-              _listOfPosition(),
-              _deliveryInfo(),
-              _dateInfo(),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _userInfo(context),
+                    _listOfPosition(),
+                    _deliveryInfo(),
+                    _dateInfo(),
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 5),
+                height: 80,
+                width: 0.5,
+                color:
+                    const Color.fromARGB(255, 219, 127, 127).withOpacity(0.7),
+              ),
+              RotatedBox(
+                quarterTurns: 3,
+                child: Text('Новый'),
+              )
             ],
           ),
         ),
